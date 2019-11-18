@@ -30,7 +30,10 @@ module.exports = {
   ],
   rules: {
     'prettier/prettier': 'error',
-    'react/jsx-filename-extension' : ['error',  {extension: ['.js', 'jsx']}],
+    'react/jsx-filename-extension': [
+      'warn',
+      { extensions : ['.jsx', 'js']}
+    ],
     'import/prefer-default-export': 'off',
     'no-unused-var': ['error', { argsIgnorePattern: '^_'}],
     'react-jsx-one-expression-per-line': 'off',
