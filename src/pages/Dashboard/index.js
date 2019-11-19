@@ -1,42 +1,41 @@
-import React,{ useEffect, useState} from 'react';
-import { View } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {withNavigationFocus} from 'react-navigation';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '~/services/api';
 
-
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import Background from '~/components/Background';
 import Appointment from '~/components/Appointment';
 
-import { Container, Title, List } from './styles';
+import {Container, Title, List} from './styles';
 
-const data = [ 1, 2, 3, 4, 5];
-
-export default function Dashboard() {
+const data = [1, 2, 3, 4, 5];
+function Dashboard({isFocused}) {
   const [appoinments, setAppointments] = useState([]);
 
+  async function loadAppointments() {
+    const response = await api.get('appointments');
 
-  useEffect (() => {
-    async function loadAppointments(){
-      const response = await api.get('appointments')
+    setAppointments(response.data);
+  }
 
-      setAppointments(response.data);
+  useEffect(() => {
+    if (isFocused) {
+      loadAppointments();
     }
+  }, [isFocused]);
 
-    loadAppointments();
-  }, []);
-
-  async function handleCancel(id){
+  async function handleCancel(id) {
     const response = await api.delete(`appointments/${id}`);
 
     setAppointments(
       appoinments.map(appoinment =>
         appoinment.id === id
-        ? {
-          ...appoinment,
-          canceled_at: response.data.canceled_at,
-        }
-        : appoinment
-      )
+          ? {
+              ...appoinment,
+              canceled_at: response.data.canceled_at,
+            }
+          : appoinment,
+      ),
     );
   }
 
@@ -48,14 +47,20 @@ export default function Dashboard() {
         <List
           data={appoinments}
           keyExtractor={item => String(item.id)}
-          renderItem={({ item }) => <Appointment onCancel={() => handleCancel(item.id)} data={item} />}
-          />
+          renderItem={({item}) => (
+            <Appointment onCancel={() => handleCancel(item.id)} data={item} />
+          )}
+        />
       </Container>
     </Background>
   );
 }
 
-Dashboard.navigationOptions ={
+Dashboard.navigationOptions = {
   tabBarLabel: 'Agendametnos',
-  tabBarIcon: ({tintColor})=> (<Icon name="event" size={20} color={tintColor} />),
+  tabBarIcon: ({tintColor}) => (
+    <Icon name="event" size={20} color={tintColor} />
+  ),
 };
+
+export default withNavigationFocus(Dashboard);
